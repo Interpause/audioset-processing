@@ -195,6 +195,57 @@ def find_files(yt_ids, file_dir, dst_dir=None):
 
     print("Finished sorting files")
 
+def get_channel_from_id(yt_id):
+    import time
+    import traceback
+
+    import requests
+
+    key = "AIzaSyC5K1ByO0LBy41Q6kKYZGCVrfxlWjkyzl8"
+    print(f"https://youtube.googleapis.com/youtube/v3/videos?key={key}&id={yt_id}&part=snippet")
+    req = requests.get(f"https://youtube.googleapis.com/youtube/v3/videos?key={key}&id={yt_id}&part=snippet")
+    if req.status_code == 200:
+        try:
+            data = req.json()
+        except ConnectionError:
+            print(traceback.format_exc())
+            time.sleep(1)
+            return get_channel_from_id(yt_id)
+        return data['items'][0]['snippet']['channelId']
+    else:
+        try:
+            data = req.json()
+            print(f"Error: {req.status_code} {data['error']['message']}")
+        except:
+            print(f"Error: {req.status_code} {req.text}")
+        return "FAILED"
+
+def sort(class_name, args):
+    from glob import glob
+    dst_dir_root = args.destination_dir if args.destination_dir is not None else DEFAULT_DEST_DIR
+    src_dir = os.path.join(dst_dir_root, class_name)
+    dst_dir = os.path.join(dst_dir_root, f"sorted-{class_name}")
+    alr = set(os.path.basename(p) for p in glob(os.path.join(dst_dir, "**", "*.wav")))
+    for path in glob(os.path.join(src_dir, f"*.wav")):
+        name = os.path.basename(path)
+        if name in alr:
+            continue
+        yt_id = name[:name.rfind("_")]
+        channel_id = get_channel_from_id(yt_id)
+        channel_dir = os.path.join(dst_dir, channel_id)
+        os.makedirs(channel_dir, exist_ok=True)
+        copyfile(path, os.path.join(channel_dir, name))
+    paths = {}
+    for path in glob(os.path.join(dst_dir, "*")):
+        n = len(list(glob(os.path.join(path, "*.wav"))))
+        paths[path] = n
+    paths = sorted(paths.items(), key=lambda x: x[1], reverse=True)
+    classes = 100
+    for path, n in paths[:classes]:
+        print(f"{n} {path}")
+    print(sum(n for _, n in paths[:classes]))
+
+
 """
     Don't call this file directly from terminal....
 

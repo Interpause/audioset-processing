@@ -32,10 +32,22 @@ def download(args):
     for class_name in args.classes:
         utils.download(class_name, args)
 
+def sort(args):
+    """
+    Function for sorting all examples in a directory containing labels for given classes
+    :param args:
+    :return:
+    """
+    print(f"Sorting all files labeled with classes {args.classes} in {args.audio_data_dir}")
+
+    for class_name in args.classes:
+        utils.sort(class_name, args)
+        print("Finished finding and sorting files for class: " + class_name)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('mode', type=str, choices=['find', 'download'])
+    parser.add_argument('mode', type=str, choices=['find', 'download', 'sort'])
     parser.add_argument('-c', '--classes', nargs='+', type=str,
                         help='list of classes to find in a given directory of audioset files')
     parser.add_argument('-b', '--blacklist', nargs='+', type=str,
@@ -72,4 +84,7 @@ if __name__ == '__main__':
             os.makedirs(args.destination_dir)
         download(args)
 
-
+    elif args.mode == 'sort':
+        if args.destination_dir is not None and not os.path.isdir(args.destination_dir):
+            os.makedirs(args.destination_dir)
+        sort(args)
