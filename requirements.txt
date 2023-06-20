@@ -1,2 +1,5 @@
 git+https://github.com/ytdl-org/youtube-dl.git@07af47960f3bb262ead02490ce65c8c45c01741e
-audiomentations==0.16.0
+audiomentations
+librosa
+pysoundfile
+tqdm
