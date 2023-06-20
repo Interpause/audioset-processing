@@ -1,4 +1,4 @@
 altgraph==0.17
 future==0.18.2
 pefile==2019.4.18
-youtube-dl
+git+https://github.com/ytdl-org/youtube-dl.git@07af47960f3bb262ead02490ce65c8c45c01741e
